@@ -300,7 +300,8 @@ Consolidated list of everything still undecided:
 2. **The math** — stat curves for mobs and adventurers: base stats, how they
    progress, and how enemies get stronger over days and dungeons.
    ✅ First pass: `docs/MATH.md` + balance simulator in `sim/simulate.py`.
-3. **Prototype.**
+3. **Prototype.** ✅ Playable web prototype in `web/` (vanilla JS, mobile-first,
+   deploys to GitHub Pages via `.github/workflows/pages.yml` — see README).
 
 ### Tech stack (undecided)
 

@@ -86,7 +86,7 @@ you can't tank everything forever.
 ## 3. Enemy scaling — the difficulty curve
 
 ```
-day budget B(d) = round(10 · 1.12^(d−1))
+day budget B(d) = round(10 · 1.135^(d−1))
 boss budget     = round(B(d) · 1.6)
 ```
 
@@ -95,13 +95,13 @@ boss budget     = round(B(d) · 1.6)
 | 1  | 10 | 1/0/8   | 2 | 4  | 2 |
 | 2  | 11 | 2/0/7   | 3 | 4  | 2 |
 | 3  | 13 | 2/0/9   | 3 | 5  | 3 |
-| 4  | 14 | 2/0/10  | 3 | 5  | 3 |
-| 5  | 16 | 2/0/12  | 4 | 6  | 3 + **BOSS** 3/1/18 (XP 6, gold 9) |
-| 6  | 18 | 2/0/14  | 4 | 6  | 4 |
-| 7  | 20 | 3/0/14  | 4 | 7  | 4 |
-| 8  | 22 | 3/1/14  | 5 | 8  | 5 |
-| 9  | 25 | 3/1/17  | 5 | 9  | 5 |
-| 10 | 28 | 4/1/18  | 6 | 10 | 3 + **BOSS** 6/1/31 (XP 9, gold 15) |
+| 4  | 15 | 2/0/11  | 3 | 5  | 3 |
+| 5  | 17 | 2/0/13  | 4 | 6  | 3 + **BOSS** 3/1/19 (XP 6, gold 9) |
+| 6  | 19 | 3/0/13  | 4 | 7  | 4 |
+| 7  | 21 | 3/1/13  | 5 | 7  | 4 |
+| 8  | 24 | 3/1/16  | 5 | 8  | 5 |
+| 9  | 28 | 4/1/18  | 6 | 10 | 5 |
+| 10 | 31 | 4/1/21  | 7 | 11 | 3 + **BOSS** 6/1/36 (XP 10, gold 17) |
 
 ("Typical" = mid-range roll; actual adventurers vary per §1.)
 
@@ -117,7 +117,7 @@ the final boss is where most losses happen (by design; see §7).
 | Starting mobs | 5 × budget 12 | ATK-leaning rolls, e.g. 3/0/6, 2/0/8, 2/1/6 |
 | Hand size | 5 | Deck + discard cycling per GDD §6 |
 | Treasury HP | **30** | Never healable. Winners average ~15 left — every point spent should feel real |
-| Overnight regen | +2 HP per mob, free | "Mobs rest"; keeps small chip damage from being pure gold tax |
+| Overnight regen | +2 HP per mob, free | "Mobs rest"; applied **when the end-of-day screen opens**, before recruit/kill/loot decisions — canonical ordering, see §6 finding 4 |
 | Healing cost | 1 gold per 2 HP | The main gold sink |
 | Emergency recruit draw | 10 gold | Draws a random mob at the current day's budget |
 
@@ -167,15 +167,17 @@ player stops recruiting, attrition compounds within ~2 days — exactly the
 
 ## 6. Simulation results & sensitivity
 
-`sim/simulate.py`, greedy bot, 2000 seeded runs on the final constants:
+`sim/simulate.py`, greedy bot, 2000 seeded runs on the final constants
+(cross-checked against the JS engine's headless bot in `web/js/selftest.mjs`,
+which lands within ~1 point):
 
 | Metric | Value | Target |
 |---|---|---|
-| Bot win rate | **55%** | 40–60% (humans play better; starter dungeon should land ~65–75% for a competent human) |
-| Avg treasury on win | 14.9 / 30 | Wins should feel earned |
+| Bot win rate | **49%** | 40–60% (humans play better; starter dungeon should land ~65–75% for a competent human) |
+| Avg treasury on win | 12.5 / 30 | Wins should feel earned |
 | Loss days | cluster at 8–10 | Losing late = tension, not frustration |
-| Mobs lost per run | ~10 | Permadeath churn is real — matches "losing mobs is strategy" pillar |
-| Recruits per run | ~9 | The army genuinely turns over |
+| Mobs lost per run | ~11 | Permadeath churn is real — matches "losing mobs is strategy" pillar |
+| Recruits per run | ~10 | The army genuinely turns over |
 
 **Sensitivity findings (handle these knobs with care):**
 
@@ -184,12 +186,22 @@ player stops recruiting, attrition compounds within ~2 days — exactly the
    compounds: faster kills → fewer counters → cheaper healing → more
    XP/gold. If ATK ever feels dominant in playtests, raise its budget cost
    to 2.5–3 before touching anything else.
-2. **The growth-rate cliff.** Bot win rate vs daily growth: 1.10 → 97%,
-   1.12 → 55%, 1.13 → 42%, 1.14 → 7%, 1.15 → 2%. Tiny exponent changes are
-   huge by day 10. This cliff is a gift for difficulty design:
-   **Hard Mode ≈ growth 1.13–1.14** with no other changes needed.
+2. **The growth-rate cliff.** Bot win rate vs daily growth (canonical
+   rules): 1.12 → 83%, 1.13 → 73%, **1.135 → 49%**, 1.14 → 19%, 1.15 → 6%.
+   Tiny exponent changes are huge by day 10. This cliff is a gift for
+   difficulty design: **Hard Mode ≈ growth 1.14–1.15** with no other
+   changes needed.
 3. Number-of-adventurers-per-day and overnight regen are gentler knobs
    (±10–20% win rate) — good for fine-tuning individual dungeons.
+4. **Even rule *ordering* moves balance.** Applying overnight regen before
+   vs after the recruit/kill/loot decisions changed the bot's loot-vs-kill
+   choices enough to swing the win rate ~30 points (an XP-heavy strategy
+   dominates once wounds look smaller). Canonical order, implemented in
+   both the sim and the web prototype: **regen applies when the end-of-day
+   screen opens**, so decisions always see true post-rest HP — and growth
+   was re-tuned from 1.12 to 1.135 against the stronger resulting play.
+   Lesson: re-run the simulator after *any* rule change, not just number
+   changes.
 
 ---
 
@@ -199,7 +211,7 @@ Each dungeon/mode is just a constants profile:
 
 | Knob | Starter | Hard Mode candidates |
 |---|---|---|
-| Growth rate | 1.12 | 1.13–1.14 |
+| Growth rate | 1.135 | 1.14–1.15 |
 | Boss multiplier | 1.6 | 1.8–2.0 |
 | Treasury HP | 30 | 20–25 |
 | Hand size | 5 | 4 |

@@ -1,0 +1,201 @@
+/* KoD prototype — mobile-first, portrait, dark dungeon theme */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #15121c;
+  --panel: #221d2e;
+  --panel-2: #2c2440;
+  --border: #3d3355;
+  --text: #e8e2f4;
+  --dim: #9c92b8;
+  --gold: #f2c14e;
+  --hp: #58c470;
+  --hp-low: #e05555;
+  --atk: #ff8a5c;
+  --def: #6db3f2;
+  --accent: #8d6bf2;
+  --danger: #e05555;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: max(8px, env(safe-area-inset-top)) 10px max(12px, env(safe-area-inset-bottom));
+}
+
+button {
+  font: inherit;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-height: 44px;
+  cursor: pointer;
+}
+button:disabled { opacity: 0.35; }
+button.primary { background: var(--accent); border-color: var(--accent); font-weight: 700; }
+button.danger { border-color: var(--danger); color: #ffb0b0; }
+
+/* ---------- header ---------- */
+
+.hud {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 2px 10px;
+}
+.hud .day { font-weight: 800; font-size: 15px; white-space: nowrap; }
+.hud .res { margin-left: auto; display: flex; gap: 10px; font-size: 14px; white-space: nowrap; }
+
+.treasury {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+.treasury .label { display: flex; justify-content: space-between; font-size: 12px; color: var(--dim); margin-bottom: 5px; }
+.bar { height: 10px; background: #1a1626; border-radius: 6px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--gold); border-radius: 6px; transition: width 0.25s; }
+.bar.hp > i { background: var(--hp); }
+.bar.hp.low > i { background: var(--hp-low); }
+
+/* ---------- combat ---------- */
+
+.arena { flex: 1; display: flex; flex-direction: column; }
+
+.adv-card {
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+  position: relative;
+}
+.adv-card.boss { border-color: var(--gold); box-shadow: 0 0 18px rgba(242, 193, 78, 0.25); }
+.adv-card .count { position: absolute; top: 8px; right: 12px; font-size: 12px; color: var(--dim); }
+.adv-card .face { font-size: 44px; line-height: 1.1; }
+.adv-card .name { font-weight: 800; margin: 2px 0 6px; }
+.adv-card .name .boss-tag { color: var(--gold); font-size: 12px; margin-left: 6px; }
+.adv-card .stats { display: flex; justify-content: center; gap: 14px; font-size: 14px; margin-bottom: 8px; }
+.stat-atk { color: var(--atk); }
+.stat-def { color: var(--def); }
+.hp-num { font-size: 12px; color: var(--dim); margin-top: 4px; }
+
+.preview {
+  text-align: center;
+  min-height: 22px;
+  font-size: 13px;
+  color: var(--gold);
+  padding: 6px 0 2px;
+}
+
+.log {
+  font-size: 12.5px;
+  color: var(--dim);
+  padding: 6px 4px;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+}
+.log .last { color: var(--text); }
+
+.combat-actions { display: flex; gap: 8px; padding: 4px 0 8px; }
+.combat-actions button { flex: 1; }
+
+.pile-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--dim);
+  padding: 0 4px 6px;
+}
+
+.hand { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
+
+.mob-card {
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 6px;
+  /* ~4.5 cards fit the viewport so a partial card peeks when the hand overflows */
+  min-width: 76px;
+  flex: 0 0 clamp(76px, 21%, 86px);
+  text-align: center;
+  cursor: pointer;
+}
+.mob-card.selected { border-color: var(--accent); background: var(--panel-2); box-shadow: 0 0 12px rgba(141, 107, 242, 0.4); }
+.mob-card .face { font-size: 28px; }
+.mob-card .name { font-size: 11px; font-weight: 700; margin: 2px 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mob-card .lvl { color: var(--gold); }
+.mob-card .stats { display: flex; justify-content: center; gap: 8px; font-size: 12px; margin-bottom: 5px; }
+
+@keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.fx-hit { animation: shake 0.22s; }
+
+/* ---------- end of day ---------- */
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.panel h2 { font-size: 14px; margin-bottom: 8px; }
+.panel h2 .hint { font-weight: 400; font-size: 12px; color: var(--dim); }
+
+.choice-row, .team-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+.choice-row:first-of-type, .team-row:first-of-type { border-top: 0; }
+.unit-line { flex: 1; min-width: 0; }
+.unit-line .top { font-size: 13.5px; font-weight: 700; }
+.unit-line .sub { font-size: 12px; color: var(--dim); }
+.choice-row .actions, .team-row .actions { display: flex; gap: 6px; }
+.choice-row .actions button, .team-row .actions button {
+  padding: 8px 9px;
+  min-height: 40px;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.eod-footer { display: flex; flex-direction: column; gap: 8px; padding-bottom: 8px; }
+
+/* ---------- title / end screens ---------- */
+
+.center-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  padding: 24px 12px;
+}
+.center-screen .big { font-size: 72px; }
+.center-screen h1 { font-size: 28px; }
+.center-screen p { color: var(--dim); font-size: 14px; max-width: 320px; }
+.center-screen .stats-box { font-size: 14px; color: var(--text); line-height: 1.9; }
+.center-screen button { width: 220px; }
+.seed-note { font-size: 11px; color: var(--dim); }

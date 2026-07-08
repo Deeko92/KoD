@@ -30,7 +30,7 @@ HP_COST = 1
 
 # Enemy scaling
 BASE_BUDGET = 10          # day-1 adventurer budget
-GROWTH = 1.12             # per-day budget multiplier
+GROWTH = 1.135            # per-day budget multiplier
 BOSS_MULT = 1.6           # boss budget = day budget * BOSS_MULT
 BOSS_DAYS = {5, 10}
 
@@ -174,6 +174,10 @@ def fight_wave(state, adventurers, day):
 
 def end_of_day(state, defeated, day):
     rng = state.rng
+    # 0. free overnight rest happens as the end-of-day screen opens, so all
+    #    decisions below see post-regen HP (canonical; matches web/js/game.js)
+    for m in state.team:
+        m.hp = min(m.max_hp, m.hp + NIGHT_REGEN)
     # 1. spend AP on defeated adventurers, biggest first
     ap = ap_for_day(day)
     target_size = min(8, 5 + (day >= 3) + (day >= 5) + (day >= 7))
@@ -197,9 +201,7 @@ def end_of_day(state, defeated, day):
         state.gold -= DRAW_COST
         state.team.append(roll_unit(day_budget(day), rng))
         state.recruits += 1
-    # 3. free overnight rest, then paid healing (most-damaged first)
-    for m in state.team:
-        m.hp = min(m.max_hp, m.hp + NIGHT_REGEN)
+    # 3. paid healing (most-damaged first)
     for m in sorted(state.team, key=lambda m: m.max_hp - m.hp, reverse=True):
         need_gold = math.ceil((m.max_hp - m.hp) / HEAL_RATE)
         spend = min(need_gold, state.gold)
