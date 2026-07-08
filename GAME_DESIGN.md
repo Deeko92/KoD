@@ -279,7 +279,9 @@ Consolidated list of everything still undecided:
 - **Hand model:** fixed hand of 5 chosen per day vs. deck + discard cycling
   (currently leaning deck + discard). (§6)
 - **End-of-day action limit:** energy/AP system vs. gold-as-currency for
-  recruit/kill/loot. (§5)
+  recruit/kill/loot. (§5) — *proposed resolution in `docs/MATH.md` §4: a
+  hybrid — AP caps the number of actions, and gold is what Loot produces
+  (spent on healing and emergency recruit draws).*
 - **Mid-day rests:** exact mechanics of resting between waves and when
   mid-day recruit/loot/kill choices resolve. (§4)
 - **Special ability design:** which abilities exist, and how mobs unlock
@@ -287,16 +289,17 @@ Consolidated list of everything still undecided:
 - **Other gold sinks:** what else gold can be spent on beyond healing and
   drawing recruits. (§5)
 - **Stat & scaling math:** base stats for mobs and adventurers, how they
-  progress and get stronger over days/dungeons — explicitly the next work
-  item after this document. (§10)
+  progress and get stronger over days/dungeons. — *first pass done: see
+  `docs/MATH.md` (simulation-validated numbers) and `sim/simulate.py`.*
 
 ---
 
 ## 10. Roadmap / Next Steps
 
-1. **Game design document** — this file (iterate as decisions land).
+1. **Game design document** — this file (iterate as decisions land). ✅
 2. **The math** — stat curves for mobs and adventurers: base stats, how they
    progress, and how enemies get stronger over days and dungeons.
+   ✅ First pass: `docs/MATH.md` + balance simulator in `sim/simulate.py`.
 3. **Prototype.**
 
 ### Tech stack (undecided)
